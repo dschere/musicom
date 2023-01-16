@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "allowJs": true,
+    "sourceMap": false,
+    "outDir": "./app",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "declaration": false,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "vextab": ["node_modules/vextab/dist/main.prod.js"],
+      "csstype": ["node_modules/csstype/index.d.ts"]
+    }
+  },
+  "include": ["./model","./view/","./controller"],
+  "exclude": ["node_modules/**/*", "build"]
+}

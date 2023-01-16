@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "angular": "1.8.2",
+    "bootstrap": "^5.2.3",
+    "jquery": "^3.6.3",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.7.0",
+    "react-dom": "^18.2.0",
+    "uglify-js": "^3.17.4",
+    "uglifyjs": "^2.4.11",
+    "vextab": "^3.0.6"
+  },
+  "devDependencies": {
+    "grunt-contrib-uglify": "~0.2.4",
+    "grunt-contrib-watch": "~0.5.3",
+    "uglifyjs-folder": "^3.2.0"
+  },
+  "uglify": "uglifyjs-folder app -eo jsm"
+}
