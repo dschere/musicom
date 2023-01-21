@@ -1,19 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
-    "sourceMap": false,
-    "outDir": "./app",
+    "skipLibCheck": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "declaration": false,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "vextab": ["node_modules/vextab/dist/main.prod.js"],
-      "csstype": ["node_modules/csstype/index.d.ts"]
-    }
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
-  "include": ["./model","./view/","./controller"],
-  "exclude": ["node_modules/**/*", "build"]
+  "include": [
+    "src"
+  ]
 }
