@@ -6,13 +6,17 @@ type Song_ struct {
 	key_  string
 	bpm   int  
 	trackTable map[string]Track
-
+    mlist []Measure
+    current_measure Measure
+    mlookup map[string]int
 }
 
 func (s *Song_) Song(v string) *Song_{
 	s.name = v
 	s.ts = TimeSignature{}
 	s.trackTable = make(map[string]Track)
+	s.mlist = make([]Measure, 0)
+	s.mlookup = make(map[string]int)
 	
 	
 	// set defaults

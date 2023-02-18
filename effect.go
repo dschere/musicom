@@ -1,5 +1,11 @@
 package musicom
 
+
+type LadspaEffect struct {
+	ffmpeg_cli string
+	fluidsynth_code string
+}
+
 type Effects struct {
 	preset string
 	
