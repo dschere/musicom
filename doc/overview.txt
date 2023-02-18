@@ -9,8 +9,7 @@ To create music the user creates a go structure such as this:
 import "musicom"
 
 
-  Song().
-    name("stuff").
+  Song("stuff").
     timesig("4/4").
     key("C").
     beat(120).
