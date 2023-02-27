@@ -10,14 +10,6 @@ type TimeSignature struct {
 	beatsPerBar int `default:4`
 	beatUnit    int `default:4`
 }
-
-var T5_4 = TimeSignature{beatsPerBar: 5, beatUnit: 4}
-var T4_4 = TimeSignature{beatsPerBar: 4, beatUnit: 4}
-var T3_4 = TimeSignature{beatsPerBar: 3, beatUnit: 4}
-var T6_8 = TimeSignature{beatsPerBar: 6, beatUnit: 8}
-var T7_8 = TimeSignature{beatsPerBar: 7, beatUnit: 8}
-
-
 func (ts *TimeSignature) parse (c string) {
 	parts := strings.Split(c,"/")
 	ts.beatUnit = 4

@@ -29,3 +29,48 @@ import "musicom"
   play() 
 
 
+
+
+
+define_effect("<tag>", [settings])
+Eff(<tag>, <tag1>, ...) // effects can be summed
+
+Eff("") // clear effect settins
+
+
+Combined effects and notes
+
+// fret 3 string 2, D note, being up to D# using half the duration then hold
+N2_3.b()
+N2_3.B() // bend up a whole step
+N2_3.br() // bend and release
+N2_3.Br() 
+ 
+N2_3.b().v() // bend followed by vibrato
+
+
+
+C(4_2,3_2,2_1).u() // upstroke (half duration)
+C(4_2,3_2,2_1).d() // downstroke
+
+// apply effects to a single note or chord
+
+N2_3.e('chorus')
+
+// and off course daisy chained
+
+// upstroke takes 100% duration, chorus applied to chord
+C(4_2,3_2,2_1).u(1.0).e('chorus') 
+
+
+// effects that take incrementally
+
+define_effect("pansweep",pan_sweep)
+
+func pan_sweep(s *Song_, sfb int) {
+    // sixty forth of a beat 
+}  
+
+
+
+

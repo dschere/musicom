@@ -1,4 +1,4 @@
-package musicom
+package main
 
 // midi instrument codes
 const PIANO = 0
@@ -162,4 +162,16 @@ const OPEN_CUICA = 79
 const MUTE_TRIANGLE = 80	
 const OPEN_TRIANGLE = 81	
 
-
+// https://nickfever.com/music/midi-cc-list
+const CC_VIBRATO = 1
+const CC_VOLUME = 7
+const CC_STEREO_PAN = 8
+const CC_MONO_PAN = 10
+const CC_SUSTAIN = 66
+const CC_LEGATO = 68
+const CC_REVERB = 91
+const CC_TREMELO = 92
+const CC_CHORUS = 93
+const CC_DETUNE = 94
+const CC_PHASER = 95
+const CC_RESET = 121

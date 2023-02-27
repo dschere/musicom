@@ -11,8 +11,10 @@ type Song_ struct {
 	bpm   int  
 	trackTable map[string]Track
     mlist []Measure
-    current_measure* Measure
+    current_measure Measure
     mlookup map[string]int
+    
+    player_ player.Player
 }
 
 func Song(v string) *Song_ {
@@ -52,11 +54,6 @@ func (s *Song_) key(v string) *Song_{
 }
 
 func (s* Song_) play() {
-    if s.current_measure != nil {
-	    s.mlist = append(s.mlist, *s.current_measure)
-        s.current_measure = nil
-    }
-
 	// TODO play the song
 	fmt.Println("%p\n", s)
 }

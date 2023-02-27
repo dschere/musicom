@@ -2,20 +2,20 @@ package main
 
 
 const (
-	Whole      float32 = 4
-	Half           = 2
-	Quarter        = 1
-	Eighth         = 0.5
-	Sixteenth      = 0.25
-	ThirtySec      = 0.125
-	Sixtyforth     = 0.0625
+	Whole      int = 64
+	Half           = 32
+	Quarter        = 16
+	Eighth         = 8
+	Sixteenth      = 4
+	ThirtySec      = 2
+	Sixtyforth     = 1
 )
 
 type Duration struct {
+	etype   string `default:"Duration"`	
 	dotted  bool
-	v       float32
+	v       int
 }
-
 
 type Legato struct {
     enabled bool

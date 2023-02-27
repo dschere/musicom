@@ -1,26 +1,24 @@
-package musicom
+package main
 
 
-type LadspaEffect struct {
-	ffmpeg_cli string
-	fluidsynth_code string
+// builtin effects
+const BEND    = "bend"
+const VIBRATO = "vibrato"
+const SLIDE   = "slide"
+const REVERB  = "reverb"
+const CHORUS  = "chorus"
+const PAN     = "pan" 
+
+
+type Effect struct {
+    name string
+    
+    f1   float32
+    i1   int
+    f2   float32
+    i2   int
 }
 
-type Effects struct {
-	preset string
-	
-}
 
 
-func (s *Song_) define_effect(
-   preset string, elist ...interface{}) *Song_ {
-   
-   //TODO
-   return s
-} 
 
-func (s *Song_) Effect(preset string) *Song_ {
-   
-   //TODO 
-   return s
-} 
