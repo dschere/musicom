@@ -1,8 +1,5 @@
 package main
 
-import (
-    "fmt"
-)
 
 type Song_ struct {
 	name  string
@@ -56,9 +53,10 @@ func (s* Song_) play() {
 	    s.mlist = append(s.mlist, *s.current_measure)
         s.current_measure = nil
     }
+    seq := Sequencer{}
 
-	// TODO play the song
-	fmt.Println("%p\n", s)
+    seq.compile(s)
+    seq.pretty_print()
 }
 
 

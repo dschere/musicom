@@ -1,17 +1,19 @@
 package main
 
 import (
+   "fmt"
    "time"
 )
 
 type TickEvent struct {
     ref interface{}
     duration time.Duration
+    moment time.Duration // current tick value in channel
 }
 
 type Channel struct {
     // event tick -> list of events for that tick
-    events map[time.Duration] []TickEvent
+    events []TickEvent
     midi_chan int
     last_tick time.Duration
     note_duration Duration
@@ -21,12 +23,8 @@ type Channel struct {
 }
 
 func (c *Channel) addEvent(te TickEvent) {
-    teList, found := c.events[c.last_tick]
-    if found == false {
-        teList = make([]TickEvent,0)
-    }
-    teList = append(teList, te) 
-    c.events[c.last_tick] = teList
+    te.moment = c.last_tick
+    c.events = append(c.events, te)
     c.last_tick += te.duration
 }
 
@@ -84,15 +82,20 @@ func _process_measure(seq *Sequencer, m Measure) {
         for trackName, ilist := range m.cmds {
             c := seq.channels[trackName]
             _process_channel(seq, &c, ilist)
+            seq.channels[trackName] = c
         }
     }     
 }
 
 func _repeat_loop(seq *Sequencer, s_measure_id int, e_measure_id int, count int) {
+    //fmt.Printf("s_measure_id %d, e_measure_id %d, count %d\n",  
+    //     s_measure_id , e_measure_id , count)
+         
     for c := 0; c < count; c++ {
         for i := s_measure_id; i < e_measure_id; i++ {
             m := seq.s.mlist[i]
             _process_measure(seq, m)
+            seq.s.mlist[i] = m
         }
     }
 }
@@ -113,7 +116,7 @@ func _create_channels(seq *Sequencer) {
         c.last_tick = 0
         c.note_duration = Dw
         c.triplet = false    
-        c.events = make(map[time.Duration] []TickEvent)
+        c.events = make([]TickEvent, 0)
         
         seq.channels[tname] = c    
         if tval.instrument == DISTORTION_GUITAR || 
@@ -127,7 +130,6 @@ func _create_channels(seq *Sequencer) {
     }
 }
 
-
 /*
  * Use the song data structure to generate a sequence of events
  * that will be converted to commands for fluidsynth. 
@@ -139,8 +141,20 @@ func (seq *Sequencer) compile(s *Song_) {
     _create_channels(seq)
     // treat the entire peace as inside a single repeat
     // loop
-    _repeat_loop(seq , 0, len(seq.channels), 1)
+    _repeat_loop(seq , 0, len(s.mlist), 1)
 } 
 
-
+func (seq *Sequencer) pretty_print() {
+    fmt.Printf("song bpm=%s, ts=%d/%d\n", seq.bpm, 
+    	seq.ts.beatsPerBar, seq.ts.beatUnit)
+    for name, channel := range seq.channels {
+        fmt.Printf("    %s track{ %p }\n", name, channel.t )
+        fmt.Printf("    %d\n", len(channel.events))
+        for i := 0; i < len(channel.events); i++ {
+            te := channel.events[i]
+            fmt.Printf("        [%ld] duration=%d, %p \n", 
+                te.moment, te.duration, te.ref )
+        }
+    }
+}
 

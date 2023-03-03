@@ -1,6 +1,7 @@
 package main
 
 import (
+//    "fmt"
     "log"
 )
 
@@ -20,9 +21,10 @@ func (s *Song_) measure(name ...string) *Song_ {
 	m.repeat = false
 	
 	s.current_measure = &m
-	
 	s.mlist = append(s.mlist, m)
 	
+//    fmt.Printf("measure %d %p\n", len(s.mlist), m)
+    
 	if len(name) == 1 {
 		s.mlookup[name[0]] = m.id
 	}
@@ -43,7 +45,10 @@ func (s *Song_) repeat(name string, count int) *Song_ {
 
     m.start_measure_id = id
 	s.mlist = append(s.mlist, m)
-    return s        	
+
+//    fmt.Printf("repeat %d %p\n", len(s.mlist), m)
+
+    return s
 }
 
 func (s *Song_) track(trackId string, clist ...interface{}) *Song_ {

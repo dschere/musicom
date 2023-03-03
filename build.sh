@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-go build -o misicom \
+go build -o musicom \
     duration.go \
     effect.go \
     measure.go  \
@@ -9,4 +9,5 @@ go build -o misicom \
     sequencer.go \
     song.go \
     timesig.go \
-    track.go  
+    track.go  \
+    main.go
