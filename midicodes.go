@@ -116,51 +116,6 @@ const GUN_SHOT = 127
 
 const DRUMS = -1
 
-// --- note codes for drums (midi channel 10) 
-const BASS_DRUM_1 = 36	
-const SIDE_STICK = 37	
-const ACOUSTIC_SNARE = 38	
-const HAND_CLAP = 39	
-const ELECTRIC_SNARE = 40	
-const LOW_FLOOR_TOM = 41	
-const CLOSED_HIGH_HAT = 42	
-const HIGH_FLOOR_TOM = 43	
-const PEDAL_HIGH_HAT = 44	
-const LOW_TOM = 45	
-const OPEN_HIGH_HAT = 46	
-const LOW_MID_TOM = 47	
-const HIGH_MID_TOM = 48	
-const CRASH_CYMBAL_1 = 49	
-const HIGH_TOM = 50	
-const CHINESE_CYMBAL = 52	
-const RIDE_BELL = 53	
-const TAMBOURINE = 54	
-const SPLASH_CYMBAL = 55	
-const COWBELL = 56	
-const CRASH_CYMBAL_2 = 57	
-const VIBRASLAP = 58	
-const RIDE_CYMBAL_2 = 59	
-const HIGH_BONGO = 60	
-const LOW_BONGO = 61	
-const MUTE_HIGH_CONGA = 62	
-const OPEN_HIGH_CONGA = 63	
-const LOW_CONGA = 64	
-const HIGH_TIMBALE = 65	
-const LOW_TIMBALE = 66	
-const LOW_AGOGO = 68	
-const CABASA = 69	
-const MARACAS = 70	
-const SHORT_WHISTLE = 71	
-const LONG_WHISTLE = 72	
-const SHORT_GUIRO = 73	
-const LONG_GUIRO = 74	
-const CLAVES = 75	
-const HIGH_WOOD_BLOCK = 76	
-const LOW_WOOD_BLOCK = 77	
-const MUTE_CUICA = 78	
-const OPEN_CUICA = 79	
-const MUTE_TRIANGLE = 80	
-const OPEN_TRIANGLE = 81	
 
 // https://nickfever.com/music/midi-cc-list
 const CC_VIBRATO = 1

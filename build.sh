@@ -2,6 +2,7 @@
 
 go build -o musicom \
     duration.go \
+    dynamic.go \
     effect.go \
     measure.go  \
     midicodes.go \

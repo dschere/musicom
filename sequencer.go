@@ -6,7 +6,7 @@ import (
 )
 
 type TickEvent struct {
-    ref interface{}
+    note Note_
     duration time.Duration
     moment time.Duration // current tick value in channel
 }
@@ -14,12 +14,29 @@ type TickEvent struct {
 type Channel struct {
     // event tick -> list of events for that tick
     events []TickEvent
+    
     midi_chan int
     last_tick time.Duration
     note_duration Duration
     triplet bool
      
     t Track
+    dyn_pat_count int
+}
+
+func (c *Channel) trackDynamic(n* Note_)  {
+    dpat := c.t.opt.dynamic
+    if len(dpat) > 0  {
+        // get the current dynamic 
+        dyn := dpat[c.dyn_pat_count]
+        
+        // does this align with the current moment ?
+        // and is the note not using a custom dymamic 
+        if n.custom_dynamic == false {
+            n.dynamic = dyn
+        }
+        c.dyn_pat_count = (c.dyn_pat_count + 1) % len(dpat)
+    } 
 }
 
 func (c *Channel) addEvent(te TickEvent) {
@@ -59,10 +76,17 @@ func _process_channel_event(seq *Sequencer, c *Channel, i interface{}){
             c.note_duration = i.(Duration)
         case TripletDuration:
             c.triplet = i.(TripletDuration).v
-        default:
-            te := TickEvent{ref: i}
+        case *Note_:
+            te := TickEvent{note: *i.(*Note_)}
+            // if configured alter dynamic based on a preset pattern
+            c.trackDynamic( &te.note )
+            // compute the midi code for the fret/gstr if the mcode
+            // has not been set.
+            te.note.ComputeMidiCode( c.t.opt )
             te.duration = _compute_duration(seq, c)
             c.addEvent(te)
+        default:
+            fmt.Printf("%p got skipped, %p\n", i)    
     }
 }
 
@@ -130,6 +154,8 @@ func _create_channels(seq *Sequencer) {
     }
 }
 
+
+
 /*
  * Use the song data structure to generate a sequence of events
  * that will be converted to commands for fluidsynth. 
@@ -138,10 +164,16 @@ func (seq *Sequencer) compile(s *Song_) {
     seq.s = s  
     seq.bpm = s.bpm
     seq.ts = s.ts
+    // create channels, at least one per track. 
+    // the electric guitar uses multiple.
     _create_channels(seq)
-    // treat the entire peace as inside a single repeat
+    
+    // treat the entire peice as inside a single repeat
     // loop
     _repeat_loop(seq , 0, len(s.mlist), 1)
+    
+    
+    // generate effect events
 } 
 
 func (seq *Sequencer) pretty_print() {
@@ -153,7 +185,7 @@ func (seq *Sequencer) pretty_print() {
         for i := 0; i < len(channel.events); i++ {
             te := channel.events[i]
             fmt.Printf("        [%ld] duration=%d, %p \n", 
-                te.moment, te.duration, te.ref )
+                te.moment, te.duration, te.note )
         }
     }
 }

@@ -1,5 +1,6 @@
 package main
 
+
 type TrackOpts struct {
 	legato bool
 	stacatto bool
@@ -10,6 +11,9 @@ type TrackOpts struct {
 	string5 string  `standard:"B4"  dropd:"B4" `
 	string6 string  `standard:"E5"  dropd:"E5" `
 	tuning_name string
+    
+    // create a beat based on varying loudness of notes.
+    dynamic []Dynamic
 }
 
 type Track struct {
@@ -48,6 +52,7 @@ func (s *Song_) define_track(
 		
         t.opt.legato = opts[0].legato
         t.opt.stacatto = opts[0].stacatto
+        t.opt.dynamic = opts[0].dynamic
         if len(opts[0].string1) > 0 { t.opt.string1 = opts[0].string1}    
         if len(opts[0].string2) > 0 { t.opt.string2 = opts[0].string2}    
         if len(opts[0].string3) > 0 { t.opt.string3 = opts[0].string3}    

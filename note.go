@@ -1,12 +1,33 @@
 package main
 
+import (
+    "log"
+    "strconv"
+)
+
 type Note_ struct {
 	rest  bool
-	mcode string // midi value
+	mcode int // midi value
 	fret  int
 	gstr  int
+    
+    // set to true and this will override any track dynamic
+    // that is set. 
+    custom_dynamic bool
+    
+    dynamic Dynamic
 
     effects []Effect
+}
+
+
+func NoteFromCode(mcode int) *Note_ {
+    n := &Note_{}
+    n.mcode = mcode
+    n.custom_dynamic = false
+    n.dynamic = MP
+    n.effects = make([]Effect,0)
+    return n
 }
 
 func Note(args ...int) *Note_ {
@@ -19,7 +40,82 @@ func Note(args ...int) *Note_ {
         n.fret = args[0]
         n.gstr = args[1]
     }
+    n.custom_dynamic = false
+    n.dynamic = MP
+    n.mcode = 0
     
+    return n
+}
+
+var StepTable = map[string]int {
+    "A": 0,
+    "B": 2,
+    "C": 3,
+    "D": 5,
+    "E": 7,
+    "F": 8,
+    "G": 10,
+}
+
+
+// use the tuning of the track and fret/gstr values to compute the
+// mcode, if the mcode is zero (uninitialized)
+func (n *Note_) ComputeMidiCode(opts TrackOpts) {
+    tuning := ""
+
+    if n.mcode == 0 {
+        switch n.gstr {
+            case 1:
+                tuning = opts.string1
+            case 2:
+                tuning = opts.string2
+            case 3:
+                tuning = opts.string3
+            case 4:
+                tuning = opts.string4
+            case 5:
+                tuning = opts.string5
+            case 6:
+                tuning = opts.string6
+        }
+    }
+    
+    tlen := len(tuning)
+
+    if tlen > 0 {        
+        octave, err1 := strconv.Atoi(tuning[tlen-1:tlen]) 
+        if err1 != nil {
+            log.Fatal("Invalid octave value for tuning %s", tuning)
+            return
+        }
+        step, found := StepTable[tuning[0:1]]
+        if found == false {
+            log.Fatal("Invalid note  value for tuning %s bust by A-G", 
+                tuning)
+            return
+        }
+        if tlen == 3 {
+            switch tuning[1:2] {
+                case "#":
+                    step++
+                case "b":
+                    step--
+                default:
+                    log.Fatal("Invalid note value for tuning %s expected #/b", 
+                        tuning)
+                    return
+            }
+        }
+        fret_0_value := (octave * 12) + step
+        n.mcode = fret_0_value + n.fret 
+    }
+}
+
+
+// change dynamic for this note.
+func (n *Note_) d(dyn Dynamic) *Note_ {
+    n.custom_dynamic = true
+    n.dynamic = dyn
     return n
 }
 
@@ -209,5 +305,50 @@ var N6_21 = Note(21, 6)
 var N6_22 = Note(22, 6)
 var N6_23 = Note(23, 6)
 var N6_24 = Note(24, 6)
+
+var  BASS_DRUM_1 = NoteFromCode(36)
+var  SIDE_STICK = NoteFromCode(37)
+var  ACOUSTIC_SNARE = NoteFromCode(38)
+var  HAND_CLAP = NoteFromCode(39)
+var  ELECTRIC_SNARE = NoteFromCode(40)
+var  LOW_FLOOR_TOM = NoteFromCode(41)
+var  CLOSED_HIGH_HAT = NoteFromCode(42)
+var  HIGH_FLOOR_TOM = NoteFromCode(43)
+var  PEDAL_HIGH_HAT = NoteFromCode(44)
+var  LOW_TOM = NoteFromCode(45)
+var  OPEN_HIGH_HAT = NoteFromCode(46)
+var  LOW_MID_TOM = NoteFromCode(47)
+var  HIGH_MID_TOM = NoteFromCode(48)
+var  CRASH_CYMBAL_1 = NoteFromCode(49)
+var  HIGH_TOM = NoteFromCode(50)
+var  CHINESE_CYMBAL = NoteFromCode(52)
+var  RIDE_BELL = NoteFromCode(53)
+var  TAMBOURINE = NoteFromCode(54)
+var  SPLASH_CYMBAL = NoteFromCode(55)
+var  COWBELL = NoteFromCode(56)
+var  CRASH_CYMBAL_2 = NoteFromCode(57)
+var  VIBRASLAP = NoteFromCode(58)
+var  RIDE_CYMBAL_2 = NoteFromCode(59)
+var  HIGH_BONGO = NoteFromCode(60)
+var  LOW_BONGO = NoteFromCode(61)
+var  MUTE_HIGH_CONGA = NoteFromCode(62)
+var  OPEN_HIGH_CONGA = NoteFromCode(63)
+var  LOW_CONGA = NoteFromCode(64)
+var  HIGH_TIMBALE = NoteFromCode(65)
+var  LOW_TIMBALE = NoteFromCode(66)
+var  LOW_AGOGO = NoteFromCode(68)
+var  CABASA = NoteFromCode(69)
+var  MARACAS = NoteFromCode(70)
+var  SHORT_WHISTLE = NoteFromCode(71)
+var  LONG_WHISTLE = NoteFromCode(72)
+var  SHORT_GUIRO = NoteFromCode(73)
+var  LONG_GUIRO = NoteFromCode(74)
+var  CLAVES = NoteFromCode(75)
+var  HIGH_WOOD_BLOCK = NoteFromCode(76)
+var  LOW_WOOD_BLOCK = NoteFromCode(77)
+var  MUTE_CUICA = NoteFromCode(78)
+var  OPEN_CUICA = NoteFromCode(79)
+var  MUTE_TRIANGLE = NoteFromCode(80)
+var  OPEN_TRIANGLE = NoteFromCode(81)
 
 
