@@ -4,6 +4,7 @@ go build -o musicom \
     duration.go \
     dynamic.go \
     effect.go \
+    fluidsynth.go \
     measure.go  \
     midicodes.go \
     note.go \

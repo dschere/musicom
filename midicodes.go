@@ -114,7 +114,7 @@ const HELICOPTER = 125
 const APPLAUSE = 126
 const GUN_SHOT = 127
 
-const DRUMS = -1
+const DRUMS = 9
 
 
 // https://nickfever.com/music/midi-cc-list
