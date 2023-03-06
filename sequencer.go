@@ -3,10 +3,11 @@ package main
 import (
    "fmt"
    "time"
+   "sync"
 )
 
 type TickEvent struct {
-    note Note_
+    note *Note_
     duration time.Duration
     moment time.Duration // current tick value in channel
 }
@@ -77,9 +78,9 @@ func _process_channel_event(seq *Sequencer, c *Channel, i interface{}){
         case TripletDuration:
             c.triplet = i.(TripletDuration).v
         case *Note_:
-            te := TickEvent{note: *i.(*Note_)}
+            te := TickEvent{note: i.(*Note_)}
             // if configured alter dynamic based on a preset pattern
-            c.trackDynamic( &te.note )
+            c.trackDynamic( te.note )
             // compute the midi code for the fret/gstr if the mcode
             // has not been set.
             te.note.ComputeMidiCode( c.t.opt )
@@ -135,7 +136,18 @@ func _create_channels(seq *Sequencer) {
     //   distorion + muted and harmonics channels 
     for tname, tval := range seq.s.trackTable {
         c := Channel{}
-        c.midi_chan = channel
+        
+        // skip drum channel since this is dedicated to precussion
+        if channel == MIDI_DRUM_CHANNEL {
+            channel += 1
+        }
+        
+        if c.t.instrument == DRUMS {
+            c.midi_chan = MIDI_DRUM_CHANNEL // channel 9 
+        } else {
+            c.midi_chan = channel
+        }
+        
         c.t = tval
         c.last_tick = 0
         c.note_duration = Dw
@@ -151,6 +163,8 @@ func _create_channels(seq *Sequencer) {
         } else {
             channel += 1
         }
+        
+        
     }
 }
 
@@ -171,8 +185,7 @@ func (seq *Sequencer) compile(s *Song_) {
     // treat the entire peice as inside a single repeat
     // loop
     _repeat_loop(seq , 0, len(s.mlist), 1)
-    
-    
+        
     // generate effect events
 } 
 
@@ -189,4 +202,82 @@ func (seq *Sequencer) pretty_print() {
         }
     }
 }
+
+
+// play routines
+
+//  wait group used to 
+var wg sync.WaitGroup
+
+func _setup_midi_channels(seq *Sequencer) int {
+    chn_count := 0
+    for _, channel := range seq.channels {
+        midi_inst_code := channel.t.instrument
+        midi_chan := channel.midi_chan
+        // assign all non precusion. Drums are assumed
+        // to be channel 9
+        if midi_inst_code != DRUMS { 
+            seq.s.fs.set_instrument(midi_chan, midi_inst_code)
+        }
+        chn_count ++
+    }    
+    return chn_count
+}
+
+func _play_note(seq* Sequencer, c *Channel, n *Note_, d time.Duration) {
+    if n.rest == false {
+        chn := c.midi_chan
+        midi_note_code := n.mcode
+        dynamic := n.dynamic.val
+         
+        // play note
+        seq.s.fs.noteon(chn, midi_note_code, dynamic)         
+
+        if c.t.opt.legato == false {
+            chn := c.midi_chan
+            midi_note_code := n.mcode
+            if c.t.opt.stacatto == true {
+                d = d / 2
+            }
+            go _sleep_then_noteoff(seq, d, chn, midi_note_code)           
+        }
+    }
+}
+
+func _sleep_then_noteoff(seq *Sequencer, d time.Duration, chn int, midi_note_code int) {
+    time.Sleep(d * time.Millisecond)
+    seq.s.fs.noteoff(chn, midi_note_code)
+}
+
+func _play_channel(seq *Sequencer, c *Channel) {
+    defer wg.Done()
+        
+    current_moment := time.Duration(0)    
+    for i := 0; i < len(c.events); i++ {
+        next_moment := c.events[i].moment
+        sleep_time := next_moment - current_moment
+        if sleep_time > 0 {
+            time.Sleep(sleep_time * time.Millisecond)
+        }
+        if (c.events[i].note != nil) {
+            _play_note(seq, c, c.events[i].note, c.events[i].duration)
+        }
+    }
+}
+
+func (seq *Sequencer) play() {
+    // setup all midi channels in fluidsynth
+    num_chan := _setup_midi_channels(seq)
+    
+    wg.Add(num_chan)
+ 
+    for _, channel := range seq.channels {
+        go _play_channel(seq, c)
+    }   
+    
+    // wait for song to complete
+    wg.Wait()
+}
+
+
 

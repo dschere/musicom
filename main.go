@@ -3,9 +3,6 @@ package main
 /*
  */
 func main() {
-  fs := FluidSynth{ port: 2112 }
-  fs.start()
-  
     
   Song("stuff").
     timesig("4/4").

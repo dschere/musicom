@@ -1,6 +1,5 @@
 package main
 
-
 type Song_ struct {
 	name  string
 	ts    TimeSignature
@@ -10,10 +9,15 @@ type Song_ struct {
     mlist []Measure
     current_measure* Measure
     mlookup map[string]int
+    fs FluidSynth
 }
 
 func Song(v string) *Song_ {
 	s := &Song_{}
+    
+    s.fs = FluidSynth{ port: FLUIDSYNTH_PORT }
+    s.fs.start()
+        
 	return s.init(v)
 }
 
@@ -57,6 +61,9 @@ func (s* Song_) play() {
 
     seq.compile(s)
     seq.pretty_print()
+    
+    // play the music ...
+    seq.play()
 }
 
 
