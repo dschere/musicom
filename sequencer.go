@@ -137,14 +137,13 @@ func _create_channels(seq *Sequencer) {
     for tname, tval := range seq.s.trackTable {
         c := Channel{}
         
-        // skip drum channel since this is dedicated to precussion
-        if channel == MIDI_DRUM_CHANNEL {
-            channel += 1
-        }
-        
-        if c.t.instrument == DRUMS {
-            c.midi_chan = MIDI_DRUM_CHANNEL // channel 9 
+        if tval.instrument == DRUMS {
+            c.midi_chan = MIDI_DRUM_CHANNEL // channel reserved for drums 
         } else {
+            // skip over precusion channel
+            if channel == MIDI_DRUM_CHANNEL {
+                channel += 1
+            }
             c.midi_chan = channel
         }
         
@@ -154,7 +153,10 @@ func _create_channels(seq *Sequencer) {
         c.triplet = false    
         c.events = make([]TickEvent, 0)
         
-        seq.channels[tname] = c    
+        fmt.Printf("channel %s set to midi channel %d\n", tname, c.midi_chan)
+        seq.channels[tname] = c
+        
+            
         if tval.instrument == DISTORTION_GUITAR || 
            tval.instrument == OVERDRIVEN_GUITAR   {
             // channel + 1 -> muted
@@ -163,7 +165,6 @@ func _create_channels(seq *Sequencer) {
         } else {
             channel += 1
         }
-        
         
     }
 }
@@ -206,22 +207,29 @@ func (seq *Sequencer) pretty_print() {
 
 // play routines
 
+
 //  wait group used to 
 var wg sync.WaitGroup
 
+
 func _setup_midi_channels(seq *Sequencer) int {
-    chn_count := 0
-    for _, channel := range seq.channels {
-        midi_inst_code := channel.t.instrument
-        midi_chan := channel.midi_chan
+    num_events := 0
+    for _, c := range seq.channels {
+        midi_inst_code := c.t.instrument
+        midi_chan := c.midi_chan
         // assign all non precusion. Drums are assumed
         // to be channel 9
         if midi_inst_code != DRUMS { 
             seq.s.fs.set_instrument(midi_chan, midi_inst_code)
         }
-        chn_count ++
+        num_events += len(c.events)
     }    
-    return chn_count
+    return num_events
+}
+
+func _sleep_then_noteoff(seq *Sequencer, d time.Duration, chn int, midi_note_code int) {
+    time.Sleep(d * time.Millisecond)
+    seq.s.fs.noteoff(chn, midi_note_code)
 }
 
 func _play_note(seq* Sequencer, c *Channel, n *Note_, d time.Duration) {
@@ -239,45 +247,38 @@ func _play_note(seq* Sequencer, c *Channel, n *Note_, d time.Duration) {
             if c.t.opt.stacatto == true {
                 d = d / 2
             }
-            go _sleep_then_noteoff(seq, d, chn, midi_note_code)           
+            
+            _sleep_then_noteoff(seq, d, chn, midi_note_code)           
         }
     }
 }
 
-func _sleep_then_noteoff(seq *Sequencer, d time.Duration, chn int, midi_note_code int) {
-    time.Sleep(d * time.Millisecond)
-    seq.s.fs.noteoff(chn, midi_note_code)
-}
-
-func _play_channel(seq *Sequencer, c *Channel) {
+func _handle_event(seq *Sequencer, c Channel, te TickEvent) {
     defer wg.Done()
-        
-    current_moment := time.Duration(0)    
-    for i := 0; i < len(c.events); i++ {
-        next_moment := c.events[i].moment
-        sleep_time := next_moment - current_moment
-        if sleep_time > 0 {
-            time.Sleep(sleep_time * time.Millisecond)
-        }
-        if (c.events[i].note != nil) {
-            _play_note(seq, c, c.events[i].note, c.events[i].duration)
-        }
+    
+    if te.moment > 0 {
+        time.Sleep(te.moment * time.Millisecond)
     }
+    
+    if te.note != nil {
+        _play_note(seq, &c, te.note, te.duration)
+    }    
 }
 
 func (seq *Sequencer) play() {
     // setup all midi channels in fluidsynth
-    num_chan := _setup_midi_channels(seq)
+    num_events := _setup_midi_channels(seq)
     
-    wg.Add(num_chan)
+    wg.Add(num_events)
  
-    for _, channel := range seq.channels {
-        go _play_channel(seq, c)
+    for trackId, channel := range seq.channels {
+        for i := 0; i < len(channel.events); i++ {
+            fmt.Printf("trackId %d, midi channel %d, event %d\n", trackId, channel.midi_chan, i)
+            go _handle_event(seq, channel, channel.events[i])
+        }
     }   
     
     // wait for song to complete
     wg.Wait()
 }
-
-
 

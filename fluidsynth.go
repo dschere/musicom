@@ -84,15 +84,18 @@ func (fs *FluidSynth) start() {
 
 func (fs *FluidSynth) set_instrument(chn int, midi_instrument_code int) {
     message := fmt.Sprintf("prog %d %d\n",chn, midi_instrument_code) 
+    fmt.Printf("FluidSynth: set_instrument %s\n", message)
     fs.msgQueue <- message    
 }
 
 func (fs *FluidSynth) noteon(chn int, midi_note_code int, dynamic int)  {
     message := fmt.Sprintf("noteon %d %d %d\n",chn,midi_note_code, dynamic) 
+    fmt.Printf("FluidSynth: noteon %s\n", message)
     fs.msgQueue <- message   
 } 
 
 func (fs *FluidSynth) noteoff(chn int, midi_note_code int)  {
-    message := fmt.Sprintf("noteoff %d %d %d\n",chn,midi_note_code) 
+    message := fmt.Sprintf("noteoff %d %d\n",chn,midi_note_code) 
+    fmt.Printf("FluidSynth: noteoff %s\n", message)
     fs.msgQueue <- message   
 } 

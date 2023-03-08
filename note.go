@@ -27,6 +27,7 @@ func NoteFromCode(mcode int) *Note_ {
     n.custom_dynamic = false
     n.dynamic = MP
     n.effects = make([]Effect,0)
+    n.rest = false
     return n
 }
 
