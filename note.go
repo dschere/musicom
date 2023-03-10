@@ -122,18 +122,22 @@ func (n *Note_) d(dyn Dynamic) *Note_ {
 
 func (n *Note_) b(args ...int) *Note_ {
     e := Effect{}
-    e.name = BEND
-    e.i1 = 1
+    e.op = BEND_HALF
     
     if len(args) == 1 {
-        e.i1 = args[1]
+        e.op = args[0]
+        if e.op < BEND_HALF || e.op > PREBEND_RELEASE_WHOLE {
+            log.Fatal("Unknown bend option %d\n", e.op)
+        } 
     }
     
     n.effects = append(n.effects, e)
+    
     return n
 }
 
 func (n *Note_) v(args ...int) *Note_ {
+    /*
     e := Effect{}
     e.name = VIBRATO
     e.i1 = 64 
@@ -143,6 +147,7 @@ func (n *Note_) v(args ...int) *Note_ {
     }
     
     n.effects = append(n.effects, e)
+    */
     return n
 }
 

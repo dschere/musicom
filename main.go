@@ -15,6 +15,10 @@ func main() {
     }).
     define_track("p", DRUMS).
  
+    measure("m0").
+       track("g1", Dw, N6_3.b()).
+       track("p", Dw, R).
+ 
     measure("m1").
        track("g1", Dq, N2_0, De,N5_1,N4_2,N3_2,N5_1,N4_2,N3_2).
        track("p" , Dw, ACOUSTIC_SNARE).

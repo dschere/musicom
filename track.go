@@ -12,7 +12,7 @@ type TrackOpts struct {
 	string6 string  `standard:"E5"  dropd:"E5" `
 	tuning_name string
     
-    // create a beat based on varying loudness of notes.
+    // create a rythm based on varying loudness of notes.
     dynamic []Dynamic
 }
 

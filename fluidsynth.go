@@ -99,3 +99,15 @@ func (fs *FluidSynth) noteoff(chn int, midi_note_code int)  {
     fmt.Printf("FluidSynth: noteoff %s\n", message)
     fs.msgQueue <- message   
 } 
+
+// bend pitch up or down 0-4.0 semi tones
+func (fs* FluidSynth) bend(chn int, val float32) {
+    // 0-16383
+    n := int(8192.0 + (4096.0 * val))
+    message := fmt.Sprintf("pitch_bend %d %d\n", chn, n)
+    fmt.Printf("FluidSynth: bend %s\n", message)
+    fs.msgQueue <- message       
+}
+
+
+

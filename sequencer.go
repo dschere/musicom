@@ -184,10 +184,13 @@ func (seq *Sequencer) compile(s *Song_) {
     _create_channels(seq)
     
     // treat the entire peice as inside a single repeat
-    // loop
+    // loop, unravel all repeat loops and create linear midi
+    // channel/channels for each track.
     _repeat_loop(seq , 0, len(s.mlist), 1)
         
     // generate effect events
+    
+    
 } 
 
 func (seq *Sequencer) pretty_print() {
@@ -232,14 +235,32 @@ func _sleep_then_noteoff(seq *Sequencer, d time.Duration, chn int, midi_note_cod
     seq.s.fs.noteoff(chn, midi_note_code)
 }
 
-func _play_note(seq* Sequencer, c *Channel, n *Note_, d time.Duration) {
+func _play_note(seq* Sequencer, c *Channel, te *TickEvent) {
+    
+    n := te.note
+    d := te.duration
+    
     if n.rest == false {
         chn := c.midi_chan
         midi_note_code := n.mcode
         dynamic := n.dynamic.val
          
+         
+        if len(n.effects) > 0 {
+            for i := 0; i < len(n.effects); i++ {
+                go n.effects[i].before_note(seq, c, te)
+            }
+        }
+         
         // play note
         seq.s.fs.noteon(chn, midi_note_code, dynamic)         
+
+        if len(n.effects) > 0 {
+            for i := 0; i < len(n.effects); i++ {
+                go n.effects[i].after_note(seq, c, te)
+            }
+        }
+
 
         if c.t.opt.legato == false {
             chn := c.midi_chan
@@ -261,7 +282,7 @@ func _handle_event(seq *Sequencer, c Channel, te TickEvent) {
     }
     
     if te.note != nil {
-        _play_note(seq, &c, te.note, te.duration)
+        _play_note(seq, &c, &te)
     }    
 }
 
