@@ -8,6 +8,7 @@ import (
 
 type TickEvent struct {
     note *Note_
+    effect *Effect
     duration time.Duration
     moment time.Duration // current tick value in channel
 }
@@ -85,6 +86,9 @@ func _process_channel_event(seq *Sequencer, c *Channel, i interface{}){
             // has not been set.
             te.note.ComputeMidiCode( c.t.opt )
             te.duration = _compute_duration(seq, c)
+            c.addEvent(te)
+        case *Effect:
+            te := TickEvent{effect: i.(*Effect)}
             c.addEvent(te)
         default:
             fmt.Printf("%p got skipped, %p\n", i)    
@@ -261,7 +265,6 @@ func _play_note(seq* Sequencer, c *Channel, te *TickEvent) {
             }
         }
 
-
         if c.t.opt.legato == false {
             chn := c.midi_chan
             midi_note_code := n.mcode
@@ -283,7 +286,10 @@ func _handle_event(seq *Sequencer, c Channel, te TickEvent) {
     
     if te.note != nil {
         _play_note(seq, &c, &te)
-    }    
+    } 
+    if te.effect != nil {
+        te.effect.execute(seq, &c)
+    }
 }
 
 func (seq *Sequencer) play() {

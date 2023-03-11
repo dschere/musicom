@@ -24,6 +24,8 @@ const (
    BEND_RELEASE_WHOLE = 3
    PREBEND_RELEASE_HALF = 4
    PREBEND_RELEASE_WHOLE = 5
+   
+   REVERB = 6
 )
 
 const BEND_TIME_SLICE_RATIO_DENOMITOR = 3
@@ -35,6 +37,21 @@ type Effect struct {
     op int
     custom_before_note CustomEffectCb 
     custom_after_note  CustomEffectCb 
+
+    reverb_val float32
+}
+
+func Reverb(val float32) *Effect {
+    e := &Effect{ op: REVERB }
+    e.reverb_val = val
+    return e
+}
+
+func (e *Effect) execute(seq *Sequencer, c *Channel) {
+    switch e.op {
+        case REVERB:
+            seq.s.fs.reverb( c.midi_chan, e.reverb_val)
+    }
 }
 
 func (e *Effect) before_note(seq *Sequencer, c *Channel, te* TickEvent){
@@ -114,7 +131,6 @@ func (e *Effect) after_note(seq *Sequencer, c *Channel, te* TickEvent) {
             _bend(seq, c, te, 2.0, 0.0)
             seq.s.fs.bend( c.midi_chan, 0.0)
                  
-                         
     }
 }
 

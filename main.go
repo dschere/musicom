@@ -16,7 +16,7 @@ func main() {
     define_track("p", DRUMS).
  
     measure("m0").
-       track("g1", Dw, N6_3.b()).
+       track("g1", Reverb(100.0), Dw, N6_3.b(BEND_RELEASE_WHOLE), Reverb(0.0)).
        track("p", Dw, R).
  
     measure("m1").

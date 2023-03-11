@@ -109,5 +109,30 @@ func (fs* FluidSynth) bend(chn int, val float32) {
     fs.msgQueue <- message       
 }
 
-
+/*
+ set reverb level 0-100% 
+ **/
+func (fs* FluidSynth) reverb(chn int, val float32) {
+    if val < 0 || val > 100.0 {
+        fmt.Printf("reverb must be between 0 .. 100\n")
+        return
+    }
+    
+    msgList := make([]string,0)
+    if val == 0.0 {
+        msgList = append( msgList, fmt.Sprintf("reverb %d 0\n", chn))        
+    } else {
+        msgList = append( msgList, fmt.Sprintf("reverb %d 1\n", chn))
+    }
+    msgList = append( msgList, 
+        fmt.Sprintf("rev_setroomsize %d %f\n", chn, val * 0.01))
+    msgList = append( msgList, 
+        fmt.Sprintf("rev_setwidth %d %f\n", chn, val))
+    
+    for i := 0; len(msgList) > i; i++ {
+        message := msgList[i]
+        fmt.Printf("FluidSynth: reverb %s", message)
+        fs.msgQueue <- message
+    }    
+}  
 
